@@ -1,0 +1,1282 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Implementing Programming Patterns in Mata to Optimize Your Code</title>
+
+		<meta name="description" content="Implementing Programming Patterns in Mata to Optimize Your Code">
+		<meta name="author" content="William R. Buchanan">
+		<meta name="institution" content="Fayette County Public Schools">
+		<meta name="title" content="Director of Grants, Research, Accountability, & Data">
+		<meta name="location" content="701 East Main Street, Lexington, KY 40502">
+		<meta name="contact" content="Billy.Buchanan@fayette.kyschools.us">
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+		<script src="js/mermaid.min.js" type="application/javascript"></script>
+
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h2>Implementing Programming Patterns in Mata to Optimize Your Code</h2>
+					<p>
+						<small><a href="https://github.com/wbuchanan" tabindex="-1">Billy Buchanan, Ph.D.</a> </br>
+							<a href="http://www.fcps.net/administration/departments/data" tabindex="-1">Director, Office of Grants, Research, Accountability, &amp; Data</a></br>
+							<a href="https://scorecard.fcps.net/" tabindex="-1">Fayette County Public Schools</a></br>
+						</small>
+					</p>
+					<div style="font-size:48px; font-weight:bold"><a href="https://wbuchanan.github.io/stataConference2020-patterns" tabindex="-1">https://wbuchanan.github.io/stataConference2020-patterns</a></div>
+				</section>
+
+				<!-- What are programming patterns? -->
+				<section>
+					<section data-autoslide="2500">
+						<h2>What are programming patterns?</h2>
+					</section>
+					<section>
+						<h3>Programming, or design, patterns are optimized solutions to common problems.</h3><br><br>
+						<aside class="notes">
+							<ul>
+								<li>You can almost think of programming patterns as analogous to the mother sauces in French cooking or sewing/knitting patterns.</li>
+								<li>Just like the mother sauces in French cooking are extensible, so too are programming programming patterns.</li>
+								<li>For example, a Bearnaise sauce inherits from Hollandaise and extends it.</li>
+								<li>Patterns tend to exist primarily within the object oriented programming paradigm.</li>
+								<li>It isn't exclusive to OOP languages and we can all probably think of several short cuts we regularly use to make our Stata workflows more efficient.</li>
+								<li>While patterns don't get discussed in Bill Gould's book on Mata, they do get discussed all the time in the software development/computer science.</li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<ul>
+							<li>Gamma, Helm, Johnson, &amp; Vlissides (1977) describe four general elements essential to programming patterns:</li>
+							<ul>
+								<li>The Name</li>
+								<li>The Problem</li>
+								<li>The Solution</li>
+								<li>The Consequences</li>
+							</ul>
+							<li>Gould's (2018) treatise on Mata is extensive, but doesn't address using programming patterns in the language.</li>
+						</ul>
+						<aside class="notes">
+							<ul>
+								<li>The name is purely about referring to the pattern at some point in the future and to think about things in terms of abstractions.</li>
+								<li>The problem should help people to understand when it makes sense to use this pattern.</li>
+								<li>The solution explains the how and why behind a pattern being the best approach to solve the problem.</li>
+								<li>The consequence should describe what happens when you don't take this approach.</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+
+				<!-- How are patterns used? -->
+				<section>
+					<section data-autoslide="2500">
+						<h2>How are patterns used?</h2>
+					</section>
+					<section>
+						<p>You probably encounter programming patterns regularly if you use a combination of Windows, OSX, and *nix variants of Stata.</p>
+						<aside class="notes">
+							<ul>
+								<li>It is possible/likely that Stata uses a combination of Factory and Abstract factory patterns to render the GUI across different OS environments.</li>
+								<li>When patterns are used, it can make it easier to extend functionality.</li>
+								<li>I'll show an example of a different pattern to give you an idea of what they look like.</li>
+								<li>Then I'll show you a much simpler pattern that addresses the use case I had in mind.</li>
+							</ul>
+						</aside>
+					</section>
+					<!--
+					The two sections below this show the Abstract Factory Pattern
+					-->
+					<section>
+						<h3 style="margin-top: -15%;">Example Abstract Factory Pattern</h3><br>
+						<div class="mermaid" style="width: 1.75vw!important; margin-left: -25%;">
+							classDiagram
+							class Client
+							class AbstractUIFactory {
+							CreateScrollBar()
+							CreateWindow()
+							}
+							class AbstractOSXFactory {
+							CreateScrollBar()
+							CreateWindow()
+							}
+							class AbstractWindowsFactory {
+							CreateScrollBar()
+							CreateWindow()
+							}
+							class Window
+							class OSXWindow
+							class WindowsWindow
+							class ScrollBar
+							class OSXScrollBar
+							class WindowsScrollBar
+							AbstractUIFactory <-- Client
+							Window <-- Client
+							ScrollBar <-- Client
+							AbstractUIFactory <|-- AbstractOSXFactory
+							AbstractUIFactory <|-- AbstractWindowsFactory
+							Window <|-- OSXWindow
+							Window <|-- WindowsWindow
+							ScrollBar <|-- OSXScrollBar
+							ScrollBar <|-- WindowsScrollBar
+							OSXWindow <.. AbstractOSXFactory
+							OSXScrollBar <.. AbstractOSXFactory
+							WindowsWindow <.. AbstractWindowsFactory
+							WindowsScrollBar <.. AbstractWindowsFactory
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>The client (end user) only interacts with high level abstractions.</li>
+								<li>Implementation specific classes handle different use cases for the user.</li>
+								<li>This makes it easier for you and others to extend your code.</li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<h3 style="margin-top: -15%;">Example Abstract Factory Pattern</h3><br>
+						<div class="mermaid" style="width: 1.75vw!important; margin-left: -25%;">
+							classDiagram
+							class Client
+							class AbstractUIFactory {
+							CreateScrollBar()*
+							CreateWindow()*
+							}
+							class AbstractOSXFactory {
+							CreateScrollBar()
+							CreateWindow()
+							}
+							class AbstractWindowsFactory {
+							CreateScrollBar()
+							CreateWindow()
+							}
+							class AbstractUnixFactory {
+							CreateScrollBar()
+							CreateWindow()
+							}
+							class Window
+							class OSXWindow
+							class WindowsWindow
+							class UnixWindow
+							class ScrollBar
+							class OSXScrollBar
+							class WindowsScrollBar
+							class UnixScrollBar
+							AbstractUIFactory <-- Client
+							Window <-- Client
+							ScrollBar <-- Client
+							AbstractUIFactory <|-- AbstractOSXFactory
+							AbstractUIFactory <|-- AbstractWindowsFactory
+							AbstractUIFactory <|-- AbstractUnixFactory
+							Window <|-- OSXWindow
+							Window <|-- WindowsWindow
+							Window <|-- UnixWindow
+							ScrollBar <|-- OSXScrollBar
+							ScrollBar <|-- WindowsScrollBar
+							ScrollBar <|-- UnixScrollBar
+							OSXWindow <.. AbstractOSXFactory
+							OSXScrollBar <.. AbstractOSXFactory
+							WindowsWindow <.. AbstractWindowsFactory
+							WindowsScrollBar <.. AbstractWindowsFactory
+							UnixWindow <.. AbstractUnixFactory
+							UnixScrollBar <.. AbstractUnixFactory
+						</div>
+						<aside class="notes">
+							<ul>
+								<li>Without the client having to make any changes to their code, this update extends functionality to another operating system.</li>
+								<li>Just like Stata abstracts away a lot of implementation details through standard interfaces, this pattern does the same.</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+
+				<!-- What is the singleton pattern? -->
+				<section>
+					<section data-autoslide="2500">
+						<h2>What is the singleton pattern?</h2>
+					</section>
+					<section>
+						<h3 style="margin-top: -15%;">The Singleton</h3>
+						<div class="mermaid" style="width: 1.75vw!important; margin-left: -25%;">
+							classDiagram
+							class Ipeds {
+							+ matrix~string~ ipedsdb
+							+ scalar~string~ ipedsroot
+							+ scalar~string~ colraw
+							+ new() void
+							+ listAllYears() void
+							+ listAllSurveys() void
+							+ listAllTitles() void
+							+ listAllRevised() void
+							+ listAllPreliminary() void
+							+ listAllData() void
+							+ replaySearch() void
+							+ downloadBySearch(|rowvector~string~ savepath, scalar~real~ files) void
+							+ downloadByID(rowvector~string~ ids, |rowvector~string~ savepath, scalar~real~ files) void
+							+ downloadHandler(rowvector~string~ files, rowvector~string~ savepath) void
+							+ listSurveysByYear() void
+							+ listTitlesByYear() void
+							+ listTitlesBySurvey() void
+							+ search(| scalar~string~ years, scalar~string~ surveys, scalar~string~ titles, scalar~string~ ids, scalar~string~ revised, scalar~string~ preliminary) matrix~string~
+							# pointer~scalar~ searchResults
+							- pointer~scalar~ yearIDs
+							- pointer~scalar~ surveyIDs
+							- pointer~scalar~ titleIDs
+							- pointer~scalar~ surveyByYearIDs
+							- pointer~scalar~ titleByYearIDs
+							- pointer~scalar~ titleBySurveyIDs
+							- pointer~scalar~ titleBySurveyAndYearIDs
+							- pointer~scalar~ years
+							- pointer~scalar~ surveys
+							- pointer~scalar~ titles
+							- pointer~scalar~ revised
+							- pointer~scalar~ preliminary
+							- pointer~scalar~ db
+							- pointer~scalar~ singleton
+							- getFileNames(scalar~string~ id, | scalar~real~ files) rowvector~string~
+							- checkDirectory(scalar~string~ savepath) void
+							- getIpeds() matrix~string~
+							- loadRawMatrix(scalar~string~ savepath) matrix~string~
+							- loadCompiledMatrix(scalar~string~ path) matrix~string~
+							}
+						</div>
+						<aside class="notes">
+							<h3>Use cases:</h3>
+							<ul>
+								<li>Prevent unnecessary I/O operations by reading from disk once.</li>
+								<li>Preventing multiple copies of the same object from existing simultaneously.</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+
+				<!-- How do you implement the singleton pattern? -->
+				<section>
+					<section data-autoslide="2500">
+						<h2>How do you implement the singleton pattern?</h2>
+					</section>
+					<section>
+						<p>You need to try to locate the object by name during instantiation:</p>
+						<pre style="width: 70vw!important; margin-left: -25%;">
+							<code data-trim data-noescape data-line-numbers="57,67-71,122-130">
+// Starts Mata session
+mata:
+
+// Clears existing material from Mata
+mata clear
+
+// Defines the Ipeds class
+class Ipeds {
+
+	// Public member variables
+	public :
+
+		// Member variable that stores string matrix with all metadata
+		string matrix ipedsdb
+
+		// Member variable storing the root directory/url for all files
+		string scalar ipedsroot, colraw
+
+		// Class constructor
+		void new(), listAllYears(), listAllSurveys(), listAllTitles(),
+			 listAllRevised(), listAllPreliminary(), listAllData(),
+			 replaySearch(), downloadBySearch(), downloadByID(),
+			 downloadHandler(), listSurveysByYear(), listTitlesByYear(),
+			 listTitlesBySurvey()
+
+		// Function that provides search functionality to class
+		string matrix search()
+
+	// Protected member variables
+	protected :
+
+		// Container to store search results for easy downloading/assembly
+		pointer scalar searchResults
+
+	// Private member variables
+	private :
+
+		// Pointers to different combinations of search fields
+		pointer scalar 	yearIDs, surveyIDs, titleIDs,
+						surveyByYearIDs, titleByYearIDs,
+						titleBySurveyIDs, titleBySurveyAndYearIDs,
+						years, surveys, titles, revised, preliminary, db
+
+		// Pointer used to store state of the class and enforce singleton pattern
+		pointer() scalar singleton
+
+		// Internal function used to return only file names from ipedsdb
+		string rowvector getFileNames()
+
+		void checkDirectory()
+
+		string matrix getIpeds(), loadRawMatrix(), loadCompiledMatrix()
+
+} // End of Class definition
+
+// Class constructor definition
+void Ipeds::new() {
+
+	// Stores error message in a string scalar
+	string rowvector errmsg
+
+	// Stores the error message for later display/formatting
+	errmsg = (	"Object ipeds of class Ipeds already exists.",
+				"DO NOT USE THIS OBJECT!",
+				"Use the existing ipeds object instead.")
+
+	// Initializes the singleton member with the single instance name
+	this.singleton = valofexternal("ipeds")
+
+	// Test whether or not the variable ipeds exists in the global namespace
+	if ((this.singleton) == J(0, 0, .)) {
+
+		// Root for all data sets and script files
+		this.ipedsroot = "https://nces.ed.gov/ipeds/datacenter/data/"
+
+		// Creates new string matrix
+		this.ipedsdb = getIpeds()
+
+		// Sets pointer to ipedsdb
+		db = &this.ipedsdb
+
+		// Pointer to unique value of years
+		this.years = &uniqrows(this.ipedsdb[., 1])
+
+		// Pointer to unique value of survey names
+		this.surveys = &uniqrows(this.ipedsdb[., 2])
+
+		// Pointer to unique values of title names
+		this.titles = &uniqrows(this.ipedsdb[., 3])
+
+		// Creates pointer to list of distinct years
+		this.yearIDs = &uniqrows(this.ipedsdb[., (1, 6)])
+
+		// Creates pointer to list of distinct surveys across years
+		this.surveyIDs = &uniqrows(this.ipedsdb[., (2, 6)])
+
+		// Creates pointer to list of distinct titles across years
+		this.titleIDs = &uniqrows(this.ipedsdb[., (3, 6)])
+
+		// Creates pointer to list of distinct surveys by year
+		this.surveyByYearIDs = &uniqrows(this.ipedsdb[., (1, 2, 6)])
+
+		// Creates pointer to list of distinct titles by year
+		this.titleByYearIDs = &uniqrows(this.ipedsdb[., (1, 3, 6)])
+
+		// Creates pointer to list of distinct titles by survey name
+		this.titleBySurveyIDs = &uniqrows(this.ipedsdb[., (2, 3, 6)])
+
+		// Creates pointer to list of distinct identifiers
+		this.titleBySurveyAndYearIDs = &uniqrows(this.ipedsdb[., (1, 2, 3, 6)])
+
+		// Pointer to identifying information for revised records
+		this.revised = &select(this.ipedsdb[., (1, 2, 3, 6)], this.ipedsdb[., 7] :== "1")
+
+		// Pointer to identifying information for preliminary records
+		this.preliminary = &select(this.ipedsdb[., (1, 2, 3, 6)], this.ipedsdb[., 8] :== "1")
+
+		this.singleton = findexternal("ipeds")
+
+	} // End IF Block for case where object is already initialized
+
+	// If the object already exists
+	else {
+
+		// Print message to screen when object already exists
+		display(sprintf("{txt}%s", errmsg[1, 1]))
+		display(sprintf("{err}%s", errmsg[1, 2]))
+		display(sprintf("{res}%s", errmsg[1, 3]))
+
+	} // End ELSE Block for existing ipeds object
+
+} // End of constructor definition
+
+// Method to download data/script files based on search results
+void Ipeds::downloadBySearch(| string rowvector savepath, real scalar files) {
+
+	// Calls the download by ID method using ID values from the search results
+	this.downloadByID((*this.searchResults)[., 1]', savepath, files)
+
+} // End of Method definition for download by search method
+
+// Method to download data/script files based on ID numbers
+void Ipeds::downloadByID(string rowvector ids, | string rowvector savepath,
+						 real scalar files) {
+
+	// Member variable used for iterating over the ids
+	real scalar i
+
+	// Rowvector used to store the names of the files to download
+	string rowvector filenames
+
+	// Loop over the IDs passed to the method
+	for (i = 1; i <= cols(ids); i++) {
+
+		// Calls the download handler method
+		this.downloadHandler(this.getFileNames(ids[1, i], files), savepath)
+
+	} // End of the loop over the result set
+
+} // End of the method definition for downloading by ID values
+
+// Defines method to retrieve file names
+string rowvector Ipeds::getFileNames(string scalar id, | real scalar files) {
+
+	// Container to store results
+	string rowvector fileNames
+
+	// If user passes a single argument assume both file names should be returned
+	if (args() == 1) fileNames = select((*db)[., (4, 5)], (*db)[., 6] :== id)
+
+	// If there are multiple arguments passed
+	else {
+
+		// Value of 0 used to return both results
+		if (files == 0) fileNames = select((*db)[., (4, 5)], (*db)[., 6] :== id)
+
+		// Value of 1 used to return the data file name only
+		else if (files == 1) fileNames = (select((*db)[., 4], (*db)[., 6] :== id), "")
+
+		// Any other value returns only the Stata script file name
+		else fileNames = ("", select((*db)[., 5], (*db)[., 6] :== id))
+
+	} // End ELSE Block for arguments passed
+
+	// Returns the string rowvector with the file names
+	return(fileNames)
+
+} // End of Method definition
+
+// Defines a method to handle the downloading and decompression of the files
+void Ipeds::downloadHandler(string rowvector files, string rowvector savepath) {
+
+	// Variable to store status code from directory changing
+	real scalar dirstatus
+
+	// String used to construct the Stata command to copy the files
+	string scalar copycmd, unzipcmd, datapath, scriptpath
+
+	// If user specifies two different paths
+	if (cols(savepath) == 2) {
+
+		// Path for data files is first
+		datapath = savepath[1, 1]
+
+		// Path for script files is second
+		scriptpath = savepath[1, 2]
+
+	} // End IF Block for multiple save paths
+
+	// If a single path is passed to the function
+	else {
+
+		// Data path is the sole element
+		datapath = savepath[1, 1]
+
+		// Script path is the same element
+		scriptpath = savepath[1, 1]
+
+	} // End ELSE Block for single save path
+
+	// Start of the string
+	copycmd = "copy " + this.ipedsroot
+
+	// Add command name to the unzipcmd string
+	unzipcmd = "unzipfile "
+
+	// Test if position for the data file name is blank
+	if (files[1, 1] != "") {
+
+		// Changes directory to the data directory path
+		dirstatus = _chdir(datapath)
+
+		// Copies the first file
+		stata(copycmd + files[1, 1] + " " + datapath + files[1, 1])
+
+		// Executes the unzipfile command to decompress the downloaded file
+		stata(unzipcmd + datapath + files[1, 1])
+
+		// Now erase the .zip file to clean up the harddrive
+		unlink(datapath + files[1, 1])
+
+	} // End IF Block for valid data file
+
+	// If user wants to download data and script this will handle retrieving the
+	// script file
+	if (files[1, 2] != "") {
+
+		// Changes directory to the path to use for scripts
+		dirstatus = _chdir(scriptpath)
+
+		// Executes the copy command to copy the script file
+		stata(copycmd + files[1, 2] + " " + scriptpath + files[1, 2])
+
+		// Executes the unzipfile command to decompress the downloaded file
+		stata(unzipcmd + scriptpath + files[1, 2])
+
+		// Remove the zip file for the script files
+		stata("erase " + scriptpath + files[1, 2])
+
+	} // End IF Block for valid Stata script files
+
+} // End of the downloadHandler method definition
+
+// Method to print search results to screen again
+void Ipeds::replaySearch() {
+
+	// Make sure the matrix has values to display first
+	if (this.searchResults != NULL) (*this.searchResults)[., (1..4)]
+
+	// If it doesn't display a message
+	else printf("You need to search IPEDS prior to replaying the search results")
+
+} // End of replay method
+
+// Defines method for searching all available files and returning file names
+string matrix Ipeds::search(| 	string scalar years,
+								string scalar surveys,
+								string scalar titles,
+								string scalar ids,
+								string scalar revised,
+								string scalar preliminary) {
+
+	// Need string scalars to handle missing options
+	string scalar f1, f2, f3, f6, f7, f8
+
+	// If the year value isn't specified use a wildcard regex
+	if (ustrregexm(years, "[0-9]+") != 1) f1 = ".*"
+
+	// Otherwise use the supplied year value
+	else f1 = years
+
+	// If no survey name is passed use a wildcard regex
+	if (surveys == "") f2 = ".*"
+
+	// Otherwise use the supplied value
+	else f2 = surveys
+
+	// If no survey title is passed use a wildcard regex
+	if (titles == "") f3 = ".*"
+
+	// Otherwise use the supplied value
+	else f3 = titles
+
+	// If an invalid id value is passed use a wildcard regex
+	if (regexm(ids, "[0-9]+") != 1) f6 = ".*"
+
+	// Otherwise use the supplied year value
+	else f6 = ids
+
+	// If no value for revised only is passed use a wildcard regex
+	if (revised != "" | revised != "1" | revised != "0") f7 = ".*"
+
+	// Otherwise use the supplied value
+	else f7 = revised
+
+	// If no value for preliminary only is passed use a wildcard regex
+	if (preliminary == "" | preliminary != "1" | preliminary != "0") f8 = ".*"
+
+	// Otherwise use the supplied value
+	else f8 = preliminary
+
+	// Select all the records that match across the regex parameters and return
+	// the data set name and the script file name
+	this.searchResults = &select(this.ipedsdb[., (6, 1, 2, 3, 4, 5)],
+							rowsum((ustrregexm(this.ipedsdb[., 1], f1, 1),
+									ustrregexm(this.ipedsdb[., 2], f2, 1),
+									ustrregexm(this.ipedsdb[., 3], f3, 1),
+									ustrregexm(this.ipedsdb[., 6], f6, 1),
+									ustrregexm(this.ipedsdb[., 7], f7, 1),
+									ustrregexm(this.ipedsdb[., 8], f8, 1))) :== 6)
+
+	// Returns the string matrix
+	return((*this.searchResults))
+
+} // End of Method definition for search functionality
+
+// Method to print all available years to the string
+void Ipeds::listAllYears() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nYears Available : \n")
+
+	// Loops over the records referenced by the years pointer
+	for(i = 1; i <= rows(*this.years); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("\n\t%s", (*this.years)[i, 1])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print all survey names to the screen
+void Ipeds::listAllSurveys() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nSurveys Available : \n")
+
+	// Loops over the records referenced by the survey pointer
+	for(i = 1; i <= rows(*this.surveys); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("\n\t%s", (*this.surveys)[i, 1])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print all survey titles to the screen
+void Ipeds::listAllTitles() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nTitles Available : \n")
+
+	// Loops over the records referenced by the title pointer
+	for(i = 1; i <= rows(*this.titles); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("\n\t%s", (*this.titles)[i, 1])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print the list of all revised data to screen
+void Ipeds::listAllRevised() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nRevised Data Available : \n\n")
+
+	// Loops over the records referenced by the pointer
+	for(i = 1; i <= rows(*this.revised); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("Survey Year\t-\t%s\nSurvey Name\t-\t%s\nSurvey Title\t-\t%s\nID Number\t-\t%s\n\n",
+							(*this.revised)[i, 1],
+							(*this.revised)[i, 2],
+							(*this.revised)[i, 3],
+							(*this.revised)[i, 4])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print the list of all preliminary released data to screen
+void Ipeds::listAllPreliminary() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nPreliminary Data Available : \n\n")
+
+	// Loops over the records referenced by the pointer
+	for(i = 1; i <= rows(*this.preliminary); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("Survey Year\t-\t%s\nSurvey Name\t-\t%s\nSurvey Title\t-\t%s\nID Number\t-\t%s\n\n",
+							(*this.preliminary)[i, 1],
+							(*this.preliminary)[i, 2],
+							(*this.preliminary)[i, 3],
+							(*this.preliminary)[i, 4])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print the list of all revised data to screen
+void Ipeds::listAllData() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nIPEDS Data Available : \n\n")
+
+	// Loops over the records referenced by the pointer
+	for(i = 1; i <= rows(*this.db); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("Survey Year\t-\t%s\nSurvey Name\t-\t%s\nSurvey Title\t-\t%s\nID Number\t-\t%s\nRevised\t\t-\t%s\nPreliminary\t-\t%s\n\n",
+							(*this.db)[i, 1],
+							(*this.db)[i, 2],
+							(*this.db)[i, 3],
+							(*this.db)[i, 4],
+							(*this.db)[i, 7],
+							(*this.db)[i, 8])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Function to retrieve string matrix with look up data
+string matrix Ipeds::getIpeds() {
+
+	// Allocates variables for the search and save paths
+	string scalar searchpath, savepath, compiled
+
+	// Matrix file will get stored in subdirectory of PERSONAL path
+	savepath = pathsubsysdir("PERSONAL")
+
+	// Only search in present directory and i subdirectory of PERSONAL
+	searchpath = pathjoin(savepath, "i") + ";" + pwd()
+
+	compiled = findfile("ipedsdb.mmat", searchpath)
+
+	// If a compiled version of the matrix exists on the search path, call
+	// the function to load the matrix from the binary file
+	if (compiled != "") return(loadCompiledMatrix(compiled))
+
+	// Otherwise call the function to read/parse the csv file from disk
+	else return(loadRawMatrix(savepath))
+
+} // End of function definition
+
+// Check to see if necessary directory structure exists
+void Ipeds::checkDirectory(string scalar savepath) {
+
+	// Checks to see if there is an i subdirectory off of PERSONAL on the adopath
+	if (direxists(pathjoin(savepath, "i")) != 1) {
+
+		// If that doesn't exist and the PERSONAL directory doesn't exist, create
+		// the PERSONAL directory
+		if (direxists(savepath) != 1) mkdir(savepath)
+
+		// Make the i subdirectory in PERSONAL
+		mkdir(pathjoin(savepath, "i"))
+
+	} // End of IF Block
+
+} // End of function definition
+
+// Function to parse the matrix from a CSV flat file
+string matrix Ipeds::loadRawMatrix(string scalar savepath) {
+
+	// Object used to store all of the data
+	string matrix ipedsdb
+
+	// Initializes string matrix
+	ipedsdb = J(963, 8, "")
+
+	// dbfh csv file handle, i = iterator, writer = file handle for writing to disk
+	real scalar dbfh, i, writer
+
+	// colraw stores headers, csvpath stores location of csv, line used to store
+	// individual records from file temporarily
+	string scalar csvpath, line
+
+	// Calls the checkDirectory method defined above
+	checkDirectory(savepath)
+
+	// Gets fully qualified file path to csv file
+	csvpath = findfile("ipedsdb.csv")
+
+	// Opens file connection with CSV file
+	dbfh = fopen(csvpath, "r")
+
+	// Opens file connection to `c(personal)'/i/ipedsdb.mmat to store the data
+	writer = fopen(pathjoin(savepath, "i") + "/ipedsdb.mmat", "w")
+
+	// Gets column headers
+	this.colraw = fget(dbfh)
+
+	// Iterates over the rows of the csv file
+	for (i = 1; i <= rows(ipedsdb); i++) {
+
+		// Gets the ith record
+		line = fget(dbfh)
+
+		// Stores this record in the string matrix along with a record ID
+		ipedsdb[i, (1..6)] = (select(tokens(line, ","),
+								tokens(line, ",") :!= ","),
+								strofreal(i))
+
+		ipedsdb[i, (7, 8)] = (	strofreal(regexm(ipedsdb[i, 3], "revised")),
+								strofreal(regexm(ipedsdb[i, 3], "preliminary")))
+
+	} // End of Loop over records in CSV file
+
+	// Closes file connection to csv file
+	fclose(dbfh)
+
+	// Writes string matrix to disk in binary format
+	fputmatrix(writer, ipedsdb)
+
+	// Closes file connection to binary matrix file
+	fclose(writer)
+
+	// Returns the string matrix
+	return(ipedsdb)
+
+} // End of function definition
+
+// If compiled matrix exists use this function for loading
+string matrix Ipeds::loadCompiledMatrix(string scalar path) {
+
+	// File handle value
+	real scalar fh
+
+	// Object to store string matrix
+	string matrix ipeds
+
+	// Open read only connection to file
+	fh = fopen(path, "r")
+
+	// Load the string matrix
+	ipeds = fgetmatrix(fh)
+
+	// Close the file connection
+	fclose(fh)
+
+	// Return the string matrix
+	return(ipeds)
+
+} // End of function definition
+
+// Method to print unique combinations of survey names and survey years to screen
+void Ipeds::listSurveysByYear() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nSurveys by Year : \n")
+
+	// Loops over the records referenced by the surveyByYearIDs pointer
+	for(i = 1; i <= rows(*this.surveyByYearIDs); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("\n\tID\t-\t%s\tYear\t-\t%s\tSurvey\t-\t%s\n",
+			(*this.surveyByYearIDs)[i, 3],
+			(*this.surveyByYearIDs)[i, 1],
+			(*this.surveyByYearIDs)[i, 2])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print unique combinations of titles and survey years to screen
+void Ipeds::listTitlesByYear() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nTitles by Year : \n")
+
+	// Loops over the records referenced by the titleByYearIDs pointer
+	for(i = 1; i <= rows(*this.titleByYearIDs); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("\n\tID\t-\t%s\tYear\t-\t%s\nTitle : %s\n",
+			(*this.titleByYearIDs)[i, 3],
+			(*this.titleByYearIDs)[i, 1],
+			(*this.titleByYearIDs)[i, 2])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// Method to print unique combinations of titles and survey names to screen
+void Ipeds::listTitlesBySurvey() {
+
+	// Declares iterator for loop below
+	real scalar i
+
+	// Prints heading for the returned results
+	printf("\nTitles by Survey Names : \n")
+
+	// Loops over the records referenced by the titleBySurveyIDs pointer
+	for(i = 1; i <= rows(*this.titleBySurveyIDs); i++) {
+
+		// Prints a formatted string with each datum on its own line
+		printf("\n\tID\t-\t%s\tSurvey\t-\t%s\nTitle : %s\n",
+			(*this.titleBySurveyIDs)[i, 3],
+			(*this.titleBySurveyIDs)[i, 1],
+			(*this.titleBySurveyIDs)[i, 2])
+
+	} // End of Loop
+
+} // End of Method definition
+
+// End of the class definition
+end
+							</code>
+						<p style="margin-top: -2.5%;">ipeds.mata</p>
+						</pre>
+						<aside class="notes">
+							<ul>
+								<li></li>
+								<li></li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<p>Use your ado wrapper to instantiate the object with the same name.</p>
+						<pre style="width: 70vw!important; margin-left: -25%">
+							<code data-trim data-noescape data-line-numbers="19-23">
+// Define program
+prog def ipeds, rclass
+
+	// Set minimum version required
+	version 14.0
+
+	// Define syntax
+	syntax anything(name = subcmd id = "Need to provide ipeds subcommand.")  ///
+	[, Years(passthru) SURVeys(passthru) TItles(passthru) REvised(passthru)  ///
+	PRELiminary(passthru) ids(passthru)	FROMSearch SAVEPath(passthru) 		 ///
+	FILETypes(passthru) ]
+
+	// Stores the current working directory
+	loc current `c(pwd)'
+
+	// Splits the sub command local into ipedssub and ipedsopt
+	gettoken ipedssub ipedsopt : subcmd
+
+	// Check for existence of Ipeds instance named ipeds
+	mata: st_local("ipedsExists", strofreal(findexternal("ipeds") == NULL))
+
+	// If the ipeds object doesn't exist initialize it
+	if `ipedsExists' == 1 mata: ipeds = Ipeds()
+
+	// Defines rootpath for downloads
+	// Deprecated...storing this in Mata object persistently
+	// loc root "https://nces.ed.gov/ipeds/datacenter/data"
+
+	// If subcommand is for searching ipeds
+	if `"`ipedssub'"' == "search" {
+
+		// Calls search subroutine
+		ipeds_search, `years' `surveys' `titles' `revised' `preliminary'
+
+		// Returns value passed to the years parameter
+		ret loc ipeds_search_years `r(ipeds_search_years)'
+
+		// Returns value passed to the survey names parameter
+		ret loc ipeds_search_surveys `r(ipeds_search_surveys)'
+
+		// Returns value passed to the survey titles parameter
+		ret loc ipeds_search_titles `r(ipeds_search_titles)'
+
+		// Returns value passed to the revised data parameter
+		ret loc ipeds_search_revised `r(ipeds_search_revised)'
+
+		// Returns value passed to the preliminary results parameter
+		ret loc ipeds_search_preliminary `r(ipeds_search_preliminary)'
+
+		// Returns value passed to the ids parameter
+		ret loc ipeds_search_ids `r(ipeds_search_ids)'
+
+		// Returns indicator that a search was performed
+		ret loc ipeds_searched `r(ipeds_searched)'
+
+	} // End IF Block for ipeds search subcommand
+
+	// Check if the subcommand is browse
+	else if `"`ipedssub'"' == "browse" {
+
+		// Calls browse subroutine
+		ipeds_browse `ipedsopt'
+
+		// Returns a local macro indicating what was browsed
+		ret loc ipeds_browsed `r(ipeds_browsed)'
+
+	} // End of ELSE IF Block for browse sub command
+
+	// If sub command is download
+	else if `"`ipedssub'"' == "download" {
+
+		// Calls download subroutine
+		ipeds_download, `years' `surveys' `titles' `revised' `preliminary'  ///
+		`ids' `fromsearch' `savepath' `filetypes' returnto(`current')
+
+		// Returns indicator of which download method was used
+		ret loc ipeds_download `r(ipeds_download)'
+
+	} // End ELSE IF Block for downloading files
+
+	// If not one of the available subcommands
+	else {
+
+		// Print to the results window
+		di as err "Invalid ipeds subcommand.  See " in smcl {help ipeds} 	 ///
+		as err "for valid subcommands"
+
+		// Issue generic error code
+		err 198
+
+	} // End ELSE Block for handling syntax errors
+
+// End of ipeds program
+end
+
+// Subroutine for searching
+prog def ipeds_search, rclass
+
+	// Defines calling syntax
+	syntax [ , years(string asis) surveys(string asis) titles(string asis) ///
+	revised(string asis) preliminary(string asis) ids(string asis) istest ]
+
+	// Calls search functionality
+	mata: ipeds.search("`years'", "`surveys'", "`titles'", "`ids'", 		 ///
+	"`revised'", "`preliminary'")
+
+	// Sets the ipeds_search_years return macro with the value of years
+	ret loc ipeds_search_years `years'
+
+	// Sets the ipeds_search_surveys return macro with the value of surveys
+	ret loc ipeds_search_surveys `surveys'
+
+	// Sets the ipeds_search_titles return macro with the value of titles
+	ret loc ipeds_search_titles `titles'
+
+	// Sets the ipeds_search_revised return macro with the value of revised data
+	ret loc ipeds_search_revised `revised'
+
+	// Sets the ipeds_search_preliminary return macro with the value of
+	// preliminary release data parameter
+	ret loc ipeds_search_preliminary `preliminary'
+
+	// Sets the ipeds_search_ids return macro with the value of record IDs
+	ret loc ipeds_search_ids `ids'
+
+	// Sets the ipeds_searched macro
+	ret loc ipeds_searched "searched"
+
+// End of search subroutine
+end
+
+// Subroutine to list available data
+prog def ipeds_browse, rclass
+
+	// Defines calling syntax
+	syntax [ anything(name = what id = "Need to specify what to list") ]
+
+	// If the sub-sub command is years will list all unique values of years
+	if `"`what'"' == "years" mata: ipeds.listAllYears()
+
+	// If the sub-sub command is surveys will list all unique survey names
+	else if `"`what'"' == "surveys" mata: ipeds.listAllSurveys()
+
+	// If the sub-sub command is titles will list all unique survey titles
+	else if `"`what'"' == "titles" mata: ipeds.listAllTitles()
+
+	// If the sub-sub command is revised will list all records that include the
+	// keyword revised in the title field
+	else if `"`what'"' == "revised" mata: ipeds.listAllRevised()
+
+	// If the sub-sub command is preliminary will list all records that are
+	// marked as preliminary release files
+	else if `"`what'"' == "preliminary" mata: ipeds.listAllPreliminary()
+
+	// If the sub-sub command is years will list all unique values of years
+	else if ustrregexm(`"`what'"', "(ye?a?r?s?+)") == 1 & 					 ///
+			ustrregexm(`"`what'"', "(su?r?v?e?y?s?)") == 1 {
+
+		// Call method to return list of surveys by year
+		mata: ipeds.listSurveysByYear()
+
+	} // End ELSE IF Block for fuzzy year/survey match
+
+	// If the sub-sub command is years will list all unique values of years
+	else if ustrregexm(`"`what'"', "(ye?a?r?s?+)") == 1 & 					 ///
+			ustrregexm(`"`what'"', "(ti?t?l?e?s?)") == 1 {
+
+		// Call method to return list of titles by year
+		mata: ipeds.listTitlesByYear()
+
+	} // End ELSE IF Block for fuzzy year/title match
+
+	// If the sub-sub command is years will list all unique values of years
+	else if ustrregexm(`"`what'"', "(ti?t?l?e?s?)") == 1 & 					 ///
+			ustrregexm(`"`what'"', "(su?r?v?e?y?s?)") == 1 {
+
+		// Call method to return list of titles by survey name
+		mata: ipeds.listTitlesBySurvey()
+
+	} // End ELSE IF Block for fuzzy title/survey match
+
+	// Otherwise display all records
+	else mata: ipeds.listAllData()
+
+	// Returns local containing the specific browse keywords used
+	ret loc ipeds_browse `what'
+
+// End of list subroutine
+end
+
+// Define download subroutine
+prog def ipeds_download, rclass
+
+	// Calling syntax for download functionality
+	syntax [, ids(string asis) FROMSearch SAVEPath(string) 			 ///
+	FILETypes(real 0) returnto(string asis) ]
+
+	// Test for valid filetypes values
+	if !inrange(`filetypes', 0, 2) {
+
+		// Print more informative error message to results window
+		di as err "filetypes parameter must be one of 0, 1, or 2.  See "	 ///
+		in smcl "{help ipeds}" as err " for additional information."
+
+		// Returns error code
+		err 198
+
+	} // End IF Block for in appropriate filetype passed
+
+	// If user specifies two save paths assume it is data then script
+	if `: word count `savepath'' == 2 gettoken datapath scriptpath : savepath
+
+	// If a single path is passed to the savepath parameter
+	else {
+
+		// Set data path to the single path from the parameter
+		loc datapath `savepath'
+
+		// Set script path to the single path from the parameter
+		loc scriptpath `savepath'
+
+	} // End ELSE Block for single save path
+
+	// Makes sure path ends with a path delimiter
+	if !inlist(substr(`"`datapath'"', -1, 1), "/", "\") == 1 loc datapath `"`datapath'/"'
+
+	// Makes sure path ends with a path delimiter
+	if !inlist(substr(`"`scriptpath'"', -1, 1), "/", "\") == 1 loc scriptpath `"`scriptpath'/"'
+
+	// If download is based on most recent search results
+	if `"`fromsearch'"' == "fromsearch" {
+
+		// Call the download by search method
+		mata: ipeds.downloadBySearch(("`datapath'", "`scriptpath'"), `filetypes')
+
+		// Define returned local macro
+		ret loc ipeds_download "Downloaded from search results"
+
+	} // End IF block for downloading from search results
+
+	// If not a search based download
+	else {
+
+		// Parse the id values into a rowvector string
+		loc dlids "(`: subinstr loc ids " " ", ", all')"
+
+		// Call the download by ID method with the IDs passed
+		mata: ipeds.downloadByID(`dlids', ("`datapath'", "`scriptpath'"), `filetypes')
+
+		// Define returned local macro
+		ret loc ipeds_download "Downloaded from ID values"
+
+	} // End ELSE Block for downloading by specific IDs
+
+	// Moves back to the initial directory when this subroutine was called
+	cd "`returnto'"
+
+// End of download subroutine definition
+end
+							</code>
+						<p style="margin-top: -2.5%;">ipeds.ado</p>
+						</pre>
+						<aside class="notes">
+							<ul>
+								<li>I am assuming that the objects would be created in .ado files, but they could be instantiated directly in Mata as well</li>
+								<li>By using the same name for the object, we can test whether an object with that name already exists.</li>
+								<li></li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<p>What happens when you try to create an object after ipeds is already created?</p>
+						<pre style="width: 75vw!important; margin-left: -25%;">
+							<code data-trim data-noescape>
+. run ipeds.mata
+. mata
+----------------------------------- mata (type end to exit) -----------------------------
+: ipeds = Ipeds()
+
+: ipeds2 = Ipeds()
+Object ipeds of class Ipeds already exists.
+DO NOT USE THIS OBJECT!
+Use the existing ipeds object instead.
+
+// The object named ipeds2 doesn't work because it shouldn't have been initialized and
+// the warning above told us not to use this object, but use the one named ipeds instead.
+: ipeds2.search("", "", "", "223")
+         Ipeds::search():  3301  subscript invalid
+                 <istmt>:     -  function returned error
+r(3301);
+
+// Calling the same method on the Ipeds object named ipeds works without issue.
+: ipeds.search("", "", "", "223")
+     1     2                               3                      4                      5                 6
+ +------------------------------------------------------------------------------------------------------------+
+ | 223  2010   Institutional Characteristics  Directory information  HD2010_Data_Stata.zip  HD2010_Stata.zip  |
+ +------------------------------------------------------------------------------------------------------------+
+ 							</code>
+						</pre>
+						<aside class="notes">
+							<ul>
+								<li>Without trying to implement the singleton pattern, instantiating the Ipeds object would read the data set every time a new object is instantiated.</li>
+								<li>Although the user can still create the object with the same name, it doesn't necessarily help.</li>
+								<li>There is a way to circumvent the issue, but there's no need to mention that.</li>
+								<li>When it does get implemented correctly, the methods work as expected.</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+
+				<!-- Conclusions -->
+				<section>
+					<section data-autoslide="2500">
+						<h2>Wrapping up</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Use a singleton to reduce unnecessary I/O operations.</li>
+							<li>Remember: no functions to search the namespace by <code>eltype</code> currently.</li>
+							<li>Using programming/design patterns can make it easier for you - and others - to contribute and extend your work.</li>
+						</ul>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
